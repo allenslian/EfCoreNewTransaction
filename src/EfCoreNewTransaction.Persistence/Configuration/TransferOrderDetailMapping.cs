@@ -3,19 +3,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using EfCoreNewTransaction.Domain.Transfer;
 
-
 namespace EfCoreNewTransaction.Persistence.Configuration
 {
     /// <summary>
-    /// Transfer order table
+    /// Transfer order detail table
     /// </summary>
-    public class TransferOrderMapping : IEntityTypeConfiguration<Order>
+    public class TransferOrderDetailMapping : IEntityTypeConfiguration<OrderDetail>
     {
-        public void Configure(EntityTypeBuilder<Order> builder)
+        public void Configure(EntityTypeBuilder<OrderDetail> builder)
         {
-            builder.ToTable("transfer_order");
-            builder.HasKey(m => m.Id).HasName("pk_transfer_order_id");
-            builder.HasIndex(m => m.OrderId, "ix_transfer_order_order_id");
+            builder.ToTable("transfer_order_detail");
+            builder.HasKey(m => m.Id).HasName("pk_transfer_order_detail_id");
+            builder.HasIndex(m => m.OrderId, "ix_transfer_order_detail_order_id");
 
             builder.Property(m => m.Id)
                 .HasColumnName("id")
@@ -24,10 +23,9 @@ namespace EfCoreNewTransaction.Persistence.Configuration
             builder.Property(m => m.OrderId)
                 .HasColumnName("order_id")
                 .IsRequired();
-            builder.Property(m => m.OrderNo)
-                .HasColumnName("order_no")
-                .HasMaxLength(128)
-                .IsRequired();
+            builder.Property(m => m.OperationId)
+                .HasColumnName("operation")
+                .IsRequired(false);
             builder.Property(m => m.Step)
                 .HasColumnName("step")
                 .HasColumnType("smallint")
@@ -36,36 +34,40 @@ namespace EfCoreNewTransaction.Persistence.Configuration
                 .HasColumnName("status")
                 .HasColumnType("smallint")
                 .IsRequired(false);
-            builder.OwnsOne(m => m.Payer,
+            builder.Property(m => m.StatusDescription)
+                .HasColumnName("status_description")
+                .HasMaxLength(500)
+                .IsRequired();
+            builder.Property(m => m.Notes)
+                .HasColumnName("notes")
+                .HasMaxLength(500)
+                .IsRequired();
+            builder.OwnsOne(m => m.Payee,
                 x =>
                 {
                     x.Property(m => m.Id)
-                        .HasColumnName("payer_id")
+                        .HasColumnName("payee_id")
                         .HasMaxLength(50)
                         .IsRequired();
                     x.Property(m => m.Name)
-                        .HasColumnName("payer_account_name")
+                        .HasColumnName("payee_account_name")
                         .HasMaxLength(128)
                         .IsRequired();
                     x.Property(m => m.Number)
-                        .HasColumnName("payer_account_no")
+                        .HasColumnName("payee_account_no")
                         .HasMaxLength(128)
                         .IsRequired();
                 });
-            builder.Property(m => m.TotalAmount)
-                .HasColumnName("total_amount")
+            builder.Property(m => m.Amount)
+                .HasColumnName("amount")
                 .HasColumnType("money")
                 .IsRequired();
             builder.Property(m => m.BizId)
                 .HasColumnName("biz_id")
                 .HasMaxLength(50)
                 .IsRequired();
-            builder.Property(m => m.WebHookUrl)
-                .HasColumnName("web_hook_url")
-                .HasMaxLength(500)
-                .IsRequired();
-            builder.Property(m => m.IsOnline)
-                .HasColumnName("is_online")
+            builder.Property(m => m.IsAgent)
+                .HasColumnName("is_agent")
                 .IsRequired();
             builder.Property(m => m.DateCreated)
                 .HasColumnName("date_created")
@@ -82,10 +84,6 @@ namespace EfCoreNewTransaction.Persistence.Configuration
             builder.Property(m => m.ModifiedBy)
                 .HasColumnName("modified_by")
                 .HasMaxLength(128)
-                .IsRequired();
-            builder.Property(m => m.Version)
-                .HasColumnName("version")
-                .IsRowVersion()
                 .IsRequired();
         }
     }

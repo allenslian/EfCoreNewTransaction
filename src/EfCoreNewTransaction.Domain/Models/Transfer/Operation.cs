@@ -39,14 +39,34 @@ namespace EfCoreNewTransaction.Domain.Transfer
         /// </summary>
         public StatusCodes Status { get; set; }
 
+        /// <summary>
+        /// 状态信息，可能是成功或失败的信息
+        /// </summary>
+        public string StatusDescription { get; set; }
+
+        /// <summary>
+        /// 支付地址
+        /// </summary>
         public string PaymentUrl { get; set; }
 
+        /// <summary>
+        /// 付款人账户
+        /// </summary>
         public Account Payer { get; set; }
 
+        /// <summary>
+        /// 收款人账户
+        /// </summary>
         public Account Payee { get; set; }
 
+        /// <summary>
+        /// 转账金额
+        /// </summary>
         public decimal Amount { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime DateCreated { get; set; }
 
         public DateTime DateModified { get; set; }

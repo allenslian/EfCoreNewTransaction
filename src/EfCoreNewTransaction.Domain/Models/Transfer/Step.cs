@@ -21,6 +21,16 @@ namespace EfCoreNewTransaction.Domain.Transfer
         /// <summary>
         /// 发放
         /// </summary>
-        Issue = 0x4
+        Issue = 0x4,
+
+        /// <summary>
+        /// 退款
+        /// </summary>
+        Refund = 0x5,
+
+        /// <summary>
+        /// 人为终止
+        /// </summary>
+        End = 0x10
     }
 }

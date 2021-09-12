@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using EfCoreNewTransaction.Infrastructure.Domain;
+using MoreLinq;
 
 namespace EfCoreNewTransaction.Domain.Transfer
 {
-    public class Order
+    /// <summary>
+    /// Transfer order
+    /// </summary>
+    public class Order : AggregateRoot<long>
     {
         #region Fields/Properties
-
-        /// <summary>
-        /// Identity
-        /// </summary>
-        public long Id { get; set; }
 
         /// <summary>
         /// Order id
@@ -20,11 +21,6 @@ namespace EfCoreNewTransaction.Domain.Transfer
         /// Order number
         /// </summary>
         public string OrderNo { get; set; }
-
-        /// <summary>
-        /// Current operation
-        /// </summary>
-        public Guid? OperationId { get; set; }
 
         /// <summary>
         /// Current operation step (redundancy)
@@ -57,20 +53,93 @@ namespace EfCoreNewTransaction.Domain.Transfer
         public string WebHookUrl { get; set; } = string.Empty;
 
         /// <summary>
-        /// 线上/线下
+        /// online/offline
         /// </summary>
         public bool IsOnline { get; set; } = true;
 
+        /// <summary>
+        /// Date created
+        /// </summary>
         public DateTime DateCreated { get; set; } = DateTime.Now;
 
+        /// <summary>
+        /// Created by
+        /// </summary>
         public string CreatedBy { get; set; }
 
+        /// <summary>
+        /// Date modified
+        /// </summary>
         public DateTime DateModified { get; set; } = DateTime.Now;
 
+        /// <summary>
+        /// Modified by
+        /// </summary>
         public string ModifiedBy { get; set; }
 
+        /// <summary>
+        /// row version
+        /// </summary>
         public byte[] Version { get; set; }
 
+        /// <summary>
+        /// transfer order details
+        /// </summary>
+        public IList<OrderDetail> Details { get; private set; }
+
         #endregion
+
+        public Order()
+        {
+            Details = new List<OrderDetail>(5);
+        }
+
+        public void AddDetails(params OrderDetail[] details)
+        {
+            if (details == null || details.Length == 0)
+            {
+                return;
+            }
+            
+            details.ForEach(m => {
+                Details.Add(m);
+            });
+        }
+
+        public void Apply()
+        {
+            Step = Steps.Apply;
+            Status = StatusCodes.Processing;
+            Details.ForEach(m => {
+                m.Step = Steps.Apply;
+                m.Status = StatusCodes.Processing;
+            });
+
+            // TODO: send order applied event.
+            RaiseEvent(new OrderAppliedEvent(this));
+        }
+
+        public void NoteOrderApplySucceeded()
+        {
+
+        }
+
+        public void NoteOrderApplyFailed()
+        {
+
+        }
+
+        public void NoteOrderApplyPaid()
+        {
+
+        }
+
+        private void EnsureOneOrderDetailAtLeast()
+        {
+            if (Details == null || Details.Count == 0)
+            {
+                throw new Exception();
+            }
+        }
     }
 }
